@@ -26,7 +26,6 @@ local borderline_setstyle = function(self, style, force)
   if style then
     style = override_nui_border(style, force)
   end
-  -- vim.print(style)
   orig.set_style(self, style)
 end
 
@@ -60,7 +59,6 @@ local borderline_mount = function(self, mount_fn)
     self:update_layout()
   end
   mount_fn(self)
-  vim.print(' after mount_fn ' .. self.winid)
   if self.winid then
     popups[self.winid] = self
   end

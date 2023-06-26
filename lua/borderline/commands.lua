@@ -38,7 +38,6 @@ M.setup = function(borderline_opts)
         cur_border_idx = cur_border_idx + 1
       end
       local target_border_name = names[cur_border_idx]
-      vim.print(target_border_name)
       local border_styles = bl_util.border_styles()
       bl_api.borderline(border_styles[target_border_name])
     end
