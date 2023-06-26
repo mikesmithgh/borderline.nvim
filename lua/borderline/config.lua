@@ -11,7 +11,7 @@ local M = {}
 ---@field border_styles table user defined border styles
 local standard_opts = {
   enabled = true,
-  border = bl_borders.thinblock,
+  border = bl_borders.rounded,
   border_styles = {}
 }
 
