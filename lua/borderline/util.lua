@@ -64,12 +64,24 @@ M.has_border = function(border)
   end
 
   -- unknown format
+  vim.notify("borderline.nvim unknown border format", vim.log.levels.WARN, {})
   return nil
 end
 
 -- check if has border and if has top title
 M.has_title = function(border)
-  return M.has_border(border) and border[2] and border[2] ~= ''
+  if M.has_border(border) then
+    local title_border = border[2]
+
+    if title_border and type(title_border) == 'string' then
+      return title_border ~= ''
+    end
+
+    if title_border and type(title_border) == 'table' then
+      return title_border[1] ~= ''
+    end
+  end
+  return false
 end
 
 M.strip_border = function(border)

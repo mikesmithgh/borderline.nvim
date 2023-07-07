@@ -114,7 +114,7 @@ local borderline_create = function(what, vim_options)
   end
 
   local orig_title = vim_options.title
-  if not util.has_title(vim_options.border_override) then
+  if not util.has_title(vim_options.borderchars) then
     vim_options.title = nil
   end
   local winid, popup = orig.create(what, vim_options)
