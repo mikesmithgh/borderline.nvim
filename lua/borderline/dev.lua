@@ -277,6 +277,19 @@ M.nvim.openwin_example = function()
   )
 end
 
+M.nvim.input_example = function()
+  vim.ui.input({ prompt = 'What are you doing?' }, function() end)
+end
+
+M.nvim.select_example = function()
+  vim.ui.select({ 'tabs', 'spaces' }, {
+    prompt = 'Select tabs or spaces:',
+    format_item = function(item)
+      return "I'd like to choose " .. item
+    end,
+  }, function() end)
+end
+
 M.commands = {
   nuilayout = M.nui.layout_example,
   nuipopup = M.nui.popup_example,
@@ -285,6 +298,8 @@ M.commands = {
   nuisplit = M.nui.split_example,
   plenarypopup = M.plenary.popup_example,
   nvimopenwin = M.nvim.openwin_example,
+  nviminput = M.nvim.input_example,
+  nvimselect = M.nvim.select_example,
   getdapoppin = function()
     M.nui.popup_example()
     M.plenary.popup_example()
