@@ -13,7 +13,7 @@ local set_winopts = function(self, force)
   if self and self.winopts then
     self.winopts = util.override_border(self.winopts, force)
     self.winopts._border = self.winopts.border
-    self.winopts.nohl_borderchars = self.winopts.border
+    self.winopts.nohl_borderchars = util.strip_border(self.winopts.border)
     self._o.winopts.border = self.winopts.border
     if self.winopts_fn then
       self.winopts_fn = function() util.override_border(self.winopts_fn(), force) end
@@ -41,7 +41,7 @@ end
 
 M.update_borders = function()
   if _self then
-    set_winopts(_self, true)
+    set_winopts(_self, true) -- TODO: should this be true
     _self:redraw()
   end
 end

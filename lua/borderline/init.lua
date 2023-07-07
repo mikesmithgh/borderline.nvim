@@ -42,6 +42,7 @@ M.setup = function(override_opts)
 
   bl_standard.update_borders()
   bl_fzflua.update_borders()
+  bl_plenary.update_borders()
 end
 
 return M

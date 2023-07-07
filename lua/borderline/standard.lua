@@ -1,4 +1,5 @@
 local util = require('borderline.util')
+local cache = require('borderline.cache')
 
 local M = {}
 
@@ -16,9 +17,15 @@ local borderline_nvim_open_win = function(buffer, enter, config)
   return orig.nvim_open_win(buffer, enter, util.override_border(config))
 end
 
-local borderline_nvim_win_set_config = function(window, config)
+local borderline_nvim_win_set_config = function(winid, config)
   util.normalize_config()
-  return orig.nvim_win_set_config(window, util.override_border(config))
+  if cache.nvim_had_border[winid] == nil then
+    cache.nvim_had_border[winid] = util.has_border(config.border)
+    if not cache.nvim_had_border[winid] then
+      config.border = util.border_styles().none
+    end
+  end
+  return orig.nvim_win_set_config(winid, util.override_border(config, cache.nvim_had_border[winid]))
 end
 
 local borderline_nvim_win_get_config = function(window)
@@ -37,7 +44,6 @@ M.update_borders = function()
     local winconfig = borderline_nvim_win_get_config(w)
     local is_float = winconfig and (winconfig.relative or "") ~= ""
     if winconfig and is_float then
-      local c = util.override_border(winconfig, true)
       borderline_nvim_win_set_config(w, winconfig)
     end
   end

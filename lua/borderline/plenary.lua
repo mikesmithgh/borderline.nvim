@@ -1,4 +1,5 @@
 local util = require "borderline.util"
+local cache = require('borderline.cache')
 local M = {}
 
 ---@type BorderlineOptions
@@ -8,9 +9,14 @@ local orig = {}
 
 local popups = {}
 
-M.standard_to_plenary_border = function(b)
-  if b == nil then
-    return nil
+M.standard_to_plenary_border = function(border_orig)
+  local b = vim.tbl_deep_extend("force", {}, border_orig or util.border_styles().none)
+  for idx, border in pairs(b) do
+    if type(border) == 'table' and type(border[1] == 'string') then
+      b[idx] = border[1]
+    elseif type(border) ~= 'string' then
+      b[idx] = ' '
+    end
   end
   return { b[2], b[4], b[6], b[8], b[1], b[3], b[5], b[7] }
 end
@@ -33,6 +39,20 @@ M.standard_to_plenary_border_map = function(b)
   }
 end
 
+M.is_plenary_border_map = function(b)
+  return type(b) == 'table' and (
+    b.border_thickness or
+    b.bot or
+    b.botleft or
+    b.botright or
+    b.left or
+    b.right or
+    b.top or
+    b.topleft or
+    b.topright
+  )
+end
+
 -- input:  { "═", "║", "═", "║", "╔", "╗", "╝", "╚" }
 --           [1]  [2]  [3]  [4]  [5]  [6]  [7]  [8]
 --            │    │    │    │    │    │    │    │
@@ -45,12 +65,17 @@ end
 --            │    │    │    │    │  └─┐    │    │
 --            ▼    ▼    ▼    ▼    ▼    ▼    ▼    ▼
 --           [5]  [1]  [6]  [2]  [7]  [3]  [8]  [4]
--- output: { "╔", "═", "╗", "║", "╝", "╗", "═", "║" }
+-- output: { "╔", "═", "╗", "║", "╝", "═", "╚", "║" }
 ---@param b any
 ---@return table?
 M.plenary_to_standard_border = function(b)
   if b == nil then
-    return nil
+    return util.border_styles().none
+  elseif type(b) ~= 'table' then
+    vim.notify('borderline.nvim: plenary border is not of type table' .. vim.inspect(b), vim.log.levels.ERROR, {})
+    return util.border_styles().none
+  elseif M.is_plenary_border_map(b) then
+    return { b.topleft, b.top, b.topright, b.right, b.botright, b.bot, b.botleft, b.left }
   elseif #b == 1 then
     return { b[1], b[1], b[1], b[1], b[1], b[1], b[1], b[1], }
   elseif #b == 2 then
@@ -60,14 +85,14 @@ M.plenary_to_standard_border = function(b)
   elseif #b == 8 then
     return { b[5], b[1], b[6], b[2], b[7], b[3], b[8], b[4], }
   end
-  vim.notify('borderline.nvim: unknown plenary border ' .. b, vim.log.levels.ERROR, {})
-  return nil
+  vim.notify('borderline.nvim: unknown plenary border ' .. vim.inspect(b), vim.log.levels.ERROR, {})
+  return util.border_styles().none
 end
 
-local plenary_border_override = function(borderchars)
+local plenary_border_override = function(borderchars, force)
   local standard_borderchars = M.plenary_to_standard_border(borderchars)
   local target_border = M.standard_to_plenary_border(
-    util.override_border({ border = standard_borderchars }).border
+    util.override_border({ border = standard_borderchars }, force).border
   )
   return target_border
 end
@@ -79,12 +104,25 @@ local borderline_create = function(what, vim_options)
     vim.notify('borderline.nvim: could not find plenary.popup.create()', vim.log.levels.ERROR, {})
     return
   end
+  if vim_options.border and not vim_options.borderchars then
+    -- plenary defaults to double borderchars
+    vim_options.borderchars = M.standard_to_plenary_border(util.border_styles().double)
+  end
   if vim_options.borderchars then
     local border_override = plenary_border_override(vim_options.borderchars)
     vim_options.borderchars = border_override
   end
+
+  local orig_title = vim_options.title
+  if not util.has_title(vim_options.border_override) then
+    vim_options.title = nil
+  end
   local winid, popup = orig.create(what, vim_options)
-  popups[winid] = popup
+  if winid then
+    popups[winid] = popup
+    cache.plenary_had_border[winid] = util.has_border(M.plenary_to_standard_border(vim_options.borderchars))
+    cache.plenary_prev_title[winid] = orig_title
+  end
   return winid, popup
 end
 
@@ -100,19 +138,37 @@ end
 
 
 M.update_borders = function()
+  util.normalize_config()
   for winid, popup in pairs(popups) do
     local plenary_border = popup.border
+    local standard_border = M.plenary_to_standard_border(plenary_border._border_win_options)
+    if cache.plenary_had_border[winid] == nil then
+      cache.plenary_had_border[winid] = util.has_border(standard_border)
+    end
+    local border_override = plenary_border_override(M.standard_to_plenary_border(standard_border),
+      cache.plenary_had_border[winid])
+    local standard_border_override = M.plenary_to_standard_border(border_override)
 
     local content_win_options = plenary_border.content_win_options
     content_win_options.noautocmd = nil
 
-    local plenary_border_map = M.standard_to_plenary_border_map(opts.border)
+    local plenary_border_map = M.standard_to_plenary_border_map(standard_border_override)
     local border_win_options = vim.tbl_deep_extend("force", plenary_border._border_win_options, plenary_border_map)
     border_win_options.noautocmd = nil
+    if util.has_title(standard_border_override) then
+      if not border_win_options.title then
+        border_win_options.title = cache.plenary_prev_title[winid]
+        cache.plenary_prev_title[winid] = nil
+      end
+    else
+      if border_win_options.title then
+        cache.plenary_prev_title[winid] = border_win_options.title
+      end
+      border_win_options.title = nil
+    end
 
-    local success, error = pcall(plenary_border.move, plenary_border, content_win_options, border_win_options)
+    local success, _ = pcall(plenary_border.move, plenary_border, content_win_options, border_win_options)
     if not success then
-      popups[winid] = nil
     end
   end
 end

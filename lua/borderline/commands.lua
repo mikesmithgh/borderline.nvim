@@ -13,6 +13,7 @@ M.setup = function(borderline_opts)
   opts = borderline_opts
 
   vim.api.nvim_create_user_command('Borderline', function(o)
+    bl_util.border_next_timer_stop()
     local border = o.args
     if border == nil or border == '' then
       -- no args, set to current configuration
@@ -25,58 +26,43 @@ M.setup = function(borderline_opts)
     complete = bl_util.border_style_names,
   })
 
-  local cur_border_idx = nil
   vim.api.nvim_create_user_command('BorderlineNext', function()
-    local doit = function()
-      local names = bl_util.border_style_names()
-      if not names or next(names) == nil then
-        return
-      end
-      if not cur_border_idx or cur_border_idx > #names then
-        cur_border_idx = 1
-      else
-        cur_border_idx = cur_border_idx + 1
-      end
-      local target_border_name = names[cur_border_idx]
-      local border_styles = bl_util.border_styles()
-      bl_api.borderline(border_styles[target_border_name])
-    end
-    vim.fn.timer_start(4000, doit, {
-      ['repeat'] = -1,
-    })
+    bl_util.border_next_timer_stop()
+    bl_api.borderline(bl_util.border_next())
   end, {})
 
+  vim.api.nvim_create_user_command('BorderlinePrevious', function()
+    bl_util.border_next_timer_stop()
+    bl_api.borderline(bl_util.border_previous())
+  end, {})
+
+  vim.api.nvim_create_user_command('BorderlineDemoStart', function(o)
+    bl_util.border_next_timer_stop()
+    local time = o.args
+    if time == nil or time == '' then
+      -- no args, set to current configuration
+      time = 1000
+    end
+    bl_util.border_next_timer_start(time, bl_api.borderline)
+  end, {
+    nargs = '?',
+  })
+
+  vim.api.nvim_create_user_command('BorderlineDemoStop', function()
+    bl_util.border_next_timer_stop()
+  end, {})
 
   vim.api.nvim_create_user_command('BorderlineDev', function(o)
     local type = o.args
     if type == nil or type == '' then
       return
     end
-    if type == 'nuilayout' then
-      bl_dev.nui.layout_example()
-    end
-    if type == 'nuipopup' then
-      bl_dev.nui.popup_example()
-    end
-    if type == 'nuiinput' then
-      bl_dev.nui.input_example()
-    end
-    if type == 'nuimenu' then
-      bl_dev.nui.menu_example()
-    end
-    if type == 'nuisplit' then
-      bl_dev.nui.split_example()
-    end
+    local dev_fn = bl_dev.commands[type]
+    dev_fn()
   end, {
     nargs = '?',
     complete = function()
-      return {
-        'nuilayout',
-        'nuipopup',
-        'nuiinput',
-        'nuimenu',
-        'nuisplit',
-      }
+      return vim.tbl_keys(bl_dev.commands)
     end,
   })
 end

@@ -1,14 +1,8 @@
 local M = {
-  nui = {}
+  nui = {},
+  plenary = {},
+  nvim = {},
 }
-
-local Popup = require("nui.popup")
-local event = require("nui.utils.autocmd").event
-local Layout = require("nui.layout")
-local Input = require("nui.input")
-local Menu = require("nui.menu")
-local Split = require("nui.split")
-
 ---@type BorderlineOptions
 local opts = {}
 
@@ -17,40 +11,61 @@ M.setup = function(borderline_opts)
   opts = borderline_opts
 end
 
-
 M.nui.popup_example = function()
+  local Popup = require("nui.popup")
+  local event = require("nui.utils.autocmd").event
   local popup = Popup({
     enter = true,
     focusable = true,
     border = {
       style = "rounded",
+      text = {
+        top = "Nui Popup",
+        top_align = "center",
+      },
     },
-
-    position = "50%",
+    position = "90%",
     size = {
-      width = "80%",
-      height = "60%",
+      width = "25%",
+      height = "25%",
     },
   })
 
   -- mount/open the component
   popup:mount()
 
-  -- unmount component when cursor leaves buffer
-  popup:on(event.BufLeave, function()
-    popup:unmount()
-  end)
-
   -- set content
-  vim.api.nvim_buf_set_lines(popup.bufnr, 0, 1, false, { "Hello World" })
+  vim.api.nvim_buf_set_lines(popup.bufnr, 0, 1, false, { "",
+    [[          Yellow Whirled        ]],
+    [[             ________           ]],
+    [[         ,o88~~88888888o,       ]],
+    [[       ,~~?8P  88888     8,     ]],
+    [[      d  d88 d88 d8_88     b    ]],
+    [[     d  d888888888          b   ]],
+    [[     8,?88888888  d8.b o.   8   ]],
+    [[     8~88888888~ ~^8888\ db 8   ]],
+    [[     ?  888888          ,888P   ]],
+    [[      ?  `8888b,_      d888P    ]],
+    [[       `   8888888b   ,888'     ]],
+    [[         ~-?8888888 _.P-~       ]],
+    [[              ~~~~~~            ]],
+
+  })
 end
 
 M.nui.layout_example = function()
+  local Popup = require("nui.popup")
+  local Layout = require("nui.layout")
   local popup_one, popup_two = Popup({
     enter = true,
-    border = "single",
+    border = "none",
   }), Popup({
-    border = "double",
+    border = {
+      style = "double",
+      text = {
+        top = "Nui Layout",
+      },
+    },
   })
 
   local layout = Layout(
@@ -91,6 +106,8 @@ M.nui.layout_example = function()
 end
 
 M.nui.input_example = function()
+  local Input = require("nui.input")
+  local event = require("nui.utils.autocmd").event
   local input = Input({
     position = "50%",
     size = {
@@ -99,7 +116,7 @@ M.nui.input_example = function()
     border = {
       style = "single",
       text = {
-        top = "[Howdy?]",
+        top = "Nui Input",
         top_align = "center",
       },
     },
@@ -127,6 +144,7 @@ M.nui.input_example = function()
 end
 
 M.nui.menu_example = function()
+  local Menu = require("nui.menu")
   local menu = Menu({
     position = "50%",
     size = {
@@ -135,10 +153,6 @@ M.nui.menu_example = function()
     },
     border = {
       style = "single",
-      text = {
-        top = "[Choose-an-Element]",
-        top_align = "center",
-      },
     },
     win_options = {
       winhighlight = "Normal:Normal,FloatBorder:Normal",
@@ -176,6 +190,8 @@ M.nui.menu_example = function()
 end
 
 M.nui.split_example = function()
+  local Split = require("nui.split")
+  local event = require("nui.utils.autocmd").event
   local split = Split({
     relative = "editor",
     position = "bottom",
@@ -190,6 +206,91 @@ M.nui.split_example = function()
     split:unmount()
   end)
 end
+
+M.plenary.popup_example = function()
+  local popup = require "plenary.popup"
+  local buffer_id = vim.api.nvim_create_buf(false, true)
+  popup.create(buffer_id, {
+    relative = 'editor',
+    col = 80,
+    noautocmd = true,
+    zindex = 1000,
+    style = 'minimal',
+    focusable = true,
+    width = 50,
+    minheight = 10,
+    border = true,
+    borderchars = { 'm', 'n', 'c', 'f', 'e', 'a', 'v', '8', },
+    enter = true,
+    title = 'Plenary Popup',
+    highlight = "NormalFloat",
+    borderhighlight = "FloatBorder",
+    titlehighlight = "FloatTitle",
+  })
+  vim.api.nvim_buf_set_lines(
+    buffer_id,
+    0,
+    0,
+    false, {
+      [[       _______________________________________   ]],
+      [[      / What did the farmer call the cow that \  ]],
+      [[      \ had no milk? An udder failure.        /  ]],
+      [[       ---------------------------------------   ]],
+      [[              \   ^__^                           ]],
+      [[               \  (oo)\_______                   ]],
+      [[                  (__)\       )\/\               ]],
+      [[                      ||----w |                  ]],
+      [[                      ||     ||                  ]],
+    }
+  )
+end
+
+M.nvim.openwin_example = function()
+  local buffer_id = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_open_win(buffer_id, true, {
+    relative = "editor",
+    border = "single",
+    width = 50,
+    height = 10,
+    row = 5,
+    col = 80,
+    style = "minimal",
+    noautocmd = true,
+    title = "Nvim float window",
+    title_pos = 'center',
+  })
+  vim.api.nvim_buf_set_lines(
+    buffer_id,
+    0,
+    0,
+    false, {
+      [[       ___________________________________   ]],
+      [[      / What would you call a cow wearing \  ]],
+      [[      \ armor? Sir Loin.                  /  ]],
+      [[       -----------------------------------   ]],
+      [[              \   ^__^                       ]],
+      [[               \  (xx)\_______               ]],
+      [[                  (__)\       )\/\           ]],
+      [[                   U  ||----w |              ]],
+      [[                      ||     ||              ]],
+    }
+  )
+end
+
+M.commands = {
+  nuilayout = M.nui.layout_example,
+  nuipopup = M.nui.popup_example,
+  nuiinput = M.nui.input_example,
+  nuimenu = M.nui.menu_example,
+  nuisplit = M.nui.split_example,
+  plenarypopup = M.plenary.popup_example,
+  nvimopenwin = M.nvim.openwin_example,
+  getdapoppin = function()
+    M.nui.popup_example()
+    M.plenary.popup_example()
+    M.nvim.openwin_example()
+  end
+}
 
 
 return M
