@@ -1,9 +1,8 @@
+---@mod borderline.util Borderline utility functions
 local bl_borders = require('borderline.borders')
 local bl_config = require('borderline.config')
 
-local M = {
-  had_border = {}
-}
+local M = {}
 
 ---@type BorderlineOptions
 local opts = {}

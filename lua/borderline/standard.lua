@@ -1,3 +1,4 @@
+---@mod borderline.standard Borderline standard nvim implementation
 local util = require('borderline.util')
 local cache = require('borderline.cache')
 
@@ -49,11 +50,22 @@ M.update_borders = function()
   end
 end
 
-M.setup = function(borderline_opts)
-  opts = borderline_opts
+M.register = function()
   vim.api.nvim_open_win = borderline_nvim_open_win
   vim.api.nvim_win_set_config = borderline_nvim_win_set_config
   vim.api.nvim_win_get_config = borderline_nvim_win_get_config
 end
+
+M.deregister = function()
+  vim.api.nvim_open_win = orig.nvim_open_win
+  vim.api.nvim_win_set_config = orig.nvim_win_set_config
+  vim.api.nvim_win_get_config = orig.nvim_win_get_config
+end
+
+M.setup = function(borderline_opts)
+  opts = borderline_opts
+  M.register()
+end
+
 
 return M

@@ -1,3 +1,5 @@
+---@mod borderline.borders Borderline Default Borders
+
 local M = {
   ---@type nil
   undefined       = nil,
@@ -39,6 +41,7 @@ local M = {
   -- ▙▄▄▄▟
   -- ---
   -- nui refers to block as solid
+  -- fzf-lua refers to block as thiccc
   block           = { '▛', '▀', '▜', '▐', '▟', '▄', '▙', '▌' },
   ---@type table
   -- ▄▄▄
@@ -78,6 +81,7 @@ local M = {
   -- ┏━━━┓
   -- ┃   ┃
   -- ┗━━━┛
+  -- fzf-lua refers to heavy_single as thicc
   heavy_single    = { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' },
   ---@type table
   -- ░░░░░
@@ -103,9 +107,10 @@ local M = {
   -- █████
   -- █   █
   -- █████
+  -- fzf-lua refers to full_block as thicccc
   full_block      = { '█', '█', '█', '█', '█', '█', '█', '█' },
   ---@type table
-  -- ┌───┐
+  -- ┌───┐  where all characters are highlighted with the highlight `DiffText`
   -- │   │
   -- └───┘
   diff            = { { '┌', 'DiffText' }, { '─', 'DiffText' }, { '┐', 'DiffText' }, { '│', 'DiffText' },

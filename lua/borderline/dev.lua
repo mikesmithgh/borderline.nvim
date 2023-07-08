@@ -1,3 +1,4 @@
+---@mod borderline.dev Borderline Dev Utilities
 local M = {
   nui = {},
   plenary = {},
@@ -33,7 +34,6 @@ M.nui.popup_example = function()
 
   -- mount/open the component
   popup:mount()
-
   -- set content
   vim.api.nvim_buf_set_lines(popup.bufnr, 0, 1, false, { "",
     [[          Yellow Whirled        ]],
@@ -306,6 +306,5 @@ M.commands = {
     M.nvim.openwin_example()
   end
 }
-
 
 return M

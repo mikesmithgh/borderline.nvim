@@ -1,11 +1,19 @@
+---@mod borderline.plenary Borderline plenary implementation
 local util = require "borderline.util"
 local cache = require('borderline.cache')
 local M = {}
 
+local success, plenary_popup = pcall(require, 'plenary.popup')
+if not success then
+  return M
+end
+
 ---@type BorderlineOptions
 local opts = {}
 
-local orig = {}
+local orig = {
+  create = plenary_popup.create
+}
 
 local popups = {}
 
@@ -100,10 +108,6 @@ end
 
 local borderline_create = function(what, vim_options)
   util.normalize_config()
-  if not orig.create then
-    vim.notify('borderline.nvim: could not find plenary.popup.create()', vim.log.levels.ERROR, {})
-    return
-  end
   if vim_options.border and not vim_options.borderchars then
     -- plenary defaults to double borderchars
     vim_options.borderchars = M.standard_to_plenary_border(util.border_styles().double)
@@ -124,16 +128,6 @@ local borderline_create = function(what, vim_options)
     cache.plenary_prev_title[winid] = orig_title
   end
   return winid, popup
-end
-
-
-M.setup = function(borderline_opts)
-  opts = borderline_opts
-  local success, plenary_popup = pcall(require, 'plenary.popup')
-  if success then
-    orig.create = plenary_popup.create
-    plenary_popup.create = borderline_create
-  end
 end
 
 
@@ -173,10 +167,17 @@ M.update_borders = function()
   end
 end
 
+M.register = function()
+  plenary_popup.create = borderline_create
+end
+
+M.deregister = function()
+  plenary_popup.create = orig.create
+end
+
+M.setup = function(borderline_opts)
+  opts = borderline_opts
+  M.register()
+end
+
 return M
-
-
-
-
-
---- left here, TODO: add validation for formats that don't match plenary

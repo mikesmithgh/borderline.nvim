@@ -36,7 +36,7 @@ M.setup = function(borderline_opts)
     bl_api.borderline(bl_util.border_previous())
   end, {})
 
-  vim.api.nvim_create_user_command('BorderlineDemoStart', function(o)
+  vim.api.nvim_create_user_command('BorderlineStartNextTimer', function(o)
     bl_util.border_next_timer_stop()
     local time = o.args
     if time == nil or time == '' then
@@ -48,23 +48,25 @@ M.setup = function(borderline_opts)
     nargs = '?',
   })
 
-  vim.api.nvim_create_user_command('BorderlineDemoStop', function()
+  vim.api.nvim_create_user_command('BorderlineStopNextTimer', function()
     bl_util.border_next_timer_stop()
   end, {})
 
-  vim.api.nvim_create_user_command('BorderlineDev', function(o)
-    local type = o.args
-    if type == nil or type == '' then
-      return
-    end
-    local dev_fn = bl_dev.commands[type]
-    dev_fn()
-  end, {
-    nargs = '?',
-    complete = function()
-      return vim.tbl_keys(bl_dev.commands)
-    end,
-  })
+  if opts.dev_mode then
+    vim.api.nvim_create_user_command('BorderlineDev', function(o)
+      local type = o.args
+      if type == nil or type == '' then
+        return
+      end
+      local dev_fn = bl_dev.commands[type]
+      dev_fn()
+    end, {
+      nargs = '?',
+      complete = function()
+        return vim.tbl_keys(bl_dev.commands)
+      end,
+    })
+  end
 end
 
 return M

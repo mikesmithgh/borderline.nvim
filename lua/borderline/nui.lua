@@ -1,11 +1,21 @@
+---@mod borderline.nui Borderline nui implementation
 local util = require('borderline.util')
 local cache = require('borderline.cache')
 local M = {}
 
+local success, nui_popup = pcall(require, 'nui.popup')
+if not success then
+  return M
+end
+local nui_border = require('nui.popup.border')
+
 ---@type BorderlineOptions
 local opts = {}
 
-local orig = {}
+local orig = {
+  set_style = nui_border.set_style,
+  popup_mount = nui_popup.mount
+}
 
 local popups = {}
 
@@ -16,10 +26,6 @@ end
 
 local borderline_setstyle = function(self, style, force)
   util.normalize_config()
-  if not orig.set_style then
-    vim.notify('borderline.nvim: could not find nui.popup.border.set_style()', vim.log.levels.ERROR, {})
-    return
-  end
   local border = util.normalize_border(style)
   style = override_nui_border(border, force)
   orig.set_style(self, border)
@@ -73,18 +79,21 @@ local borderline_mount = function(self, mount_fn)
   end
 end
 
+M.register = function()
+  nui_border.set_style = borderline_setstyle
+  nui_popup.mount = function(self)
+    borderline_mount(self, orig.popup_mount)
+  end
+end
+
+M.deregister = function()
+  nui_border.set_style = orig.set_style
+  nui_popup.mount = orig.popup_mount
+end
+
 M.setup = function(borderline_opts)
   opts = borderline_opts
-  local success_popup, nui_popup = pcall(require, 'nui.popup')
-  local success_border, nui_border = pcall(require, 'nui.popup.border')
-  if success_popup and success_border then
-    orig.set_style = nui_border.set_style
-    nui_border.set_style = borderline_setstyle
-    orig.popup_mount = nui_popup.mount
-    nui_popup.mount = function(self)
-      borderline_mount(self, orig.popup_mount)
-    end
-  end
+  M.register()
 end
 
 return M
