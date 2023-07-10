@@ -4,6 +4,10 @@
 
 work in progress
 
+https://github.com/mikesmithgh/borderline.nvim/assets/10135646/da91139e-4031-471b-97b2-02c6e43b674e
+
+
+
 <!-- panvimdoc-ignore-start -->
 
 <!-- [![neovim: nightly](https://img.shields.io/static/v1?style=for-the-badge&label=neovim&message=nightly&logo=neovim&labelColor=282828&logoColor=8faa80&color=414b32)](https://neovim.io/) -->
