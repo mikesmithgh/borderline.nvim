@@ -55,7 +55,7 @@ M.has_border = function(border)
   end
 
   if type(border) == 'table' then
-    local stripped_border = M.strip_border(border)
+    local stripped_border = M.strip_border_hl(border)
     local nonempty_chars = vim.tbl_filter(function(borderchar)
       return borderchar ~= nil and borderchar ~= '' -- and borderchar ~= ' '
     end, stripped_border)
@@ -83,7 +83,7 @@ M.has_title = function(border)
   return false
 end
 
-M.strip_border = function(border)
+M.strip_border_hl = function(border)
   if type(border) == 'table' then
     if not next(border) then
       return {}
@@ -163,7 +163,7 @@ M.border_next = function()
   end
   if target_border_style then
     if not no_cur_border_idx or (no_cur_border_idx and table.concat(vim.tbl_flatten(target_border_style)) ~= table.concat(vim.tbl_flatten(config_border))) then
-      return target_border_style
+      return target_border_style, target_border_name
     end
   end
   return M.border_next()
@@ -189,7 +189,7 @@ M.border_previous = function()
   end
   if target_border_style then
     if not no_cur_border_idx or (no_cur_border_idx and table.concat(target_border_style) ~= table.concat(config_border)) then
-      return target_border_style
+      return target_border_style, target_border_name
     end
   end
   return M.border_previous()
@@ -206,9 +206,12 @@ end
 
 M.border_next_timer_start = function(time, callback)
   M.border_next_timer_stop()
+  if not time then
+    time = 1000
+  end
   border_next_timer = vim.fn.timer_start(time, function()
-    local next_border = M.border_next()
-    callback(next_border)
+    local next_border, next_border_name = M.border_next()
+    callback(next_border, next_border_name)
   end, {
     ['repeat'] = -1,
   })

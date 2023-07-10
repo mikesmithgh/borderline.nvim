@@ -1,5 +1,10 @@
 ---@mod borderline.borders Borderline Default Borders
 
+-- border index position
+-- 1 2 3
+-- 8   4
+-- 7 6 5
+
 local M = {
   ---@type nil
   undefined       = nil,

@@ -25,7 +25,7 @@ local set_winopts = function(self, force)
   if self and self.winopts then
     self.winopts = vim.tbl_deep_extend("force", self.winopts, util.override_border(self.winopts, force))
     self.winopts._border = self.winopts.border
-    self.winopts.nohl_borderchars = util.strip_border(self.winopts.border)
+    self.winopts.nohl_borderchars = util.strip_border_hl(self.winopts.border)
     self._o.winopts = self.winopts
     if self.winopts_fn then
       self.winopts_fn = function() util.override_border(self.winopts_fn(), force) end

@@ -1,8 +1,11 @@
 ---@mod borderline.dev Borderline Dev Utilities
+local bl_api = require('borderline.api')
+local bl_util = require('borderline.util')
 local M = {
   nui = {},
   plenary = {},
   nvim = {},
+  fzflua = {},
 }
 ---@type BorderlineOptions
 local opts = {}
@@ -14,7 +17,6 @@ end
 
 M.nui.popup_example = function()
   local Popup = require("nui.popup")
-  local event = require("nui.utils.autocmd").event
   local popup = Popup({
     enter = true,
     focusable = true,
@@ -25,10 +27,14 @@ M.nui.popup_example = function()
         top_align = "center",
       },
     },
-    position = "90%",
+    relative = "editor",
+    position = {
+      row = 5,
+      col = 43,
+    },
     size = {
-      width = "25%",
-      height = "25%",
+      width = 35,
+      height = 15,
     },
   })
 
@@ -70,10 +76,14 @@ M.nui.layout_example = function()
 
   local layout = Layout(
     {
-      position = "50%",
+      relative = "editor",
+      position = {
+        row = 22,
+        col = 43,
+      },
       size = {
-        width = 80,
-        height = "60%",
+        width = 35,
+        height = 15,
       },
     },
     Layout.Box({
@@ -107,11 +117,14 @@ end
 
 M.nui.input_example = function()
   local Input = require("nui.input")
-  local event = require("nui.utils.autocmd").event
   local input = Input({
-    position = "50%",
+    relative = "editor",
+    position = {
+      row = 39,
+      col = 43,
+    },
     size = {
-      width = 20,
+      width = 35,
     },
     border = {
       style = "single",
@@ -120,42 +133,35 @@ M.nui.input_example = function()
         top_align = "center",
       },
     },
-    win_options = {
-      winhighlight = "Normal:Normal,FloatBorder:Normal",
-    },
   }, {
     prompt = "> ",
     default_value = "Hello",
-    on_close = function()
-      print("Input Closed!")
-    end,
-    on_submit = function(value)
-      print("Input Submitted: " .. value)
-    end,
+    on_close = function() end,
+    on_submit = function() end,
   })
 
   -- mount/open the component
   input:mount()
-
-  -- unmount component when cursor leaves buffer
-  input:on(event.BufLeave, function()
-    input:unmount()
-  end)
 end
 
 M.nui.menu_example = function()
   local Menu = require("nui.menu")
   local menu = Menu({
-    position = "50%",
+    relative = "editor",
+    position = {
+      row = 43,
+      col = 43,
+    },
     size = {
-      width = 25,
+      width = 35,
       height = 5,
     },
     border = {
       style = "single",
-    },
-    win_options = {
-      winhighlight = "Normal:Normal,FloatBorder:Normal",
+      text = {
+        top = "Nui Menu",
+        top_align = "center",
+      }
     },
   }, {
     lines = {
@@ -170,41 +176,18 @@ M.nui.menu_example = function()
       Menu.item("Neon (Ne)"),
       Menu.item("Argon (Ar)"),
     },
-    max_width = 20,
+    max_width = 35,
     keymap = {
       focus_next = { "j", "<Down>", "<Tab>" },
       focus_prev = { "k", "<Up>", "<S-Tab>" },
-      close = { "<Esc>", "<C-c>" },
       submit = { "<CR>", "<Space>" },
     },
-    on_close = function()
-      print("Menu Closed!")
-    end,
-    on_submit = function(item)
-      print("Menu Submitted: ", item.text)
-    end,
+    on_close = function() end,
+    on_submit = function() end,
   })
 
   -- mount the component
   menu:mount()
-end
-
-M.nui.split_example = function()
-  local Split = require("nui.split")
-  local event = require("nui.utils.autocmd").event
-  local split = Split({
-    relative = "editor",
-    position = "bottom",
-    size = "20%",
-  })
-
-  -- mount/open the component
-  split:mount()
-
-  -- unmount component when cursor leaves buffer
-  split:on(event.BufLeave, function()
-    split:unmount()
-  end)
 end
 
 M.plenary.popup_example = function()
@@ -212,9 +195,10 @@ M.plenary.popup_example = function()
   local buffer_id = vim.api.nvim_create_buf(false, true)
   popup.create(buffer_id, {
     relative = 'editor',
-    col = 80,
+    line = 19,
+    col = 82,
     noautocmd = true,
-    zindex = 1000,
+    zindex = 100,
     style = 'minimal',
     focusable = true,
     width = 50,
@@ -252,11 +236,11 @@ M.nvim.openwin_example = function()
     border = "single",
     width = 50,
     height = 10,
-    row = 5,
+    row = 4,
     col = 80,
     style = "minimal",
     noautocmd = true,
-    title = "Nvim float window",
+    title = "Nvim Float Window",
     title_pos = 'center',
   })
   vim.api.nvim_buf_set_lines(
@@ -277,6 +261,75 @@ M.nvim.openwin_example = function()
   )
 end
 
+
+local function border_tbl_to_map(border_tbl)
+  local border_map = {}
+  for i, b in pairs(border_tbl) do
+    local i_str = tostring(i)
+    border_map[i_str] = b
+    if type(b) == 'table' then
+      border_map[i_str] = border_tbl_to_map(b)
+    end
+  end
+  return border_map
+end
+
+M.nvim.demo = function(border_name, border_style, winid)
+  border_style = border_style or {}
+  local winconfig = {
+    relative = "editor",
+    border = "single",
+    width = 34,
+    height = 43,
+    row = 4,
+    col = 5,
+    style = "minimal",
+    title = 'Borderline Demo',
+    title_pos = 'center',
+  }
+
+  local buffer_id = nil
+  if not winid then
+    buffer_id = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_set_option_value('filetype', 'lua', { buf = buffer_id })
+    winid = vim.api.nvim_open_win(buffer_id, true, winconfig)
+  else
+    vim.api.nvim_win_set_config(winid, winconfig)
+    buffer_id = vim.api.nvim_win_get_buf(winid)
+  end
+
+  vim.api.nvim_buf_set_lines(buffer_id, 0, -1, false, {})
+  local lines = { '', ' -- ' .. border_name }
+  local borderchars = bl_util.strip_border_hl(border_style)
+  if next(borderchars) then
+    local size = 6
+    table.insert(lines, ' -- ' .. borderchars[1] .. borderchars[2]:rep(size) .. borderchars[3])
+    for _ = 1, (size / 2) do
+      table.insert(lines, ' -- ' .. borderchars[8] .. string.rep(' ', size) .. borderchars[4])
+    end
+    table.insert(lines, ' -- ' .. borderchars[7] .. borderchars[6]:rep(size) .. borderchars[5])
+  end
+  local border_map = border_tbl_to_map(border_style)
+  local first = true
+  for s in vim.inspect(border_map):gmatch("[^\r\n]+") do
+    s = s:gsub('^(.*%[)"(.*)"(%])', '%1%2%3')
+    if first then
+      table.insert(lines, ' local border = ' .. s)
+      first = false
+    else
+      table.insert(lines, ' ' .. s)
+    end
+  end
+  vim.api.nvim_buf_set_lines(
+    buffer_id,
+    0,
+    0,
+    false,
+    lines
+  )
+  return winid
+end
+
 M.nvim.input_example = function()
   vim.ui.input({ prompt = 'What are you doing?' }, function() end)
 end
@@ -290,21 +343,64 @@ M.nvim.select_example = function()
   }, function() end)
 end
 
+M.fzflua.ls_example = function()
+  require('fzf-lua').fzf_exec("ls", {
+    winopts = {
+      width = 50,
+      height = 17,
+      row = 30,
+      col = 80,
+      title = 'Fzf-lua Window',
+      title_pos = 'center'
+    },
+    previewer = "builtin"
+  })
+end
+
+M.demo_winid = nil
+
 M.commands = {
   nuilayout = M.nui.layout_example,
   nuipopup = M.nui.popup_example,
   nuiinput = M.nui.input_example,
   nuimenu = M.nui.menu_example,
-  nuisplit = M.nui.split_example,
   plenarypopup = M.plenary.popup_example,
   nvimopenwin = M.nvim.openwin_example,
   nviminput = M.nvim.input_example,
   nvimselect = M.nvim.select_example,
-  getdapoppin = function()
+  fzflualsreadme = M.fzflua.ls_example,
+  demostart = function()
+    bl_util.border_next_timer_stop()
+    M.demo_winid = M.nvim.demo('Borderline Demo', {}, M.demo_winid)
+    bl_util.border_next_timer_start(1500, function(border_style, border_name)
+      bl_api.borderline(border_style)
+      M.nvim.demo(border_name, border_style, M.demo_winid)
+    end)
+
     M.nui.popup_example()
+    M.nui.layout_example()
+    M.nui.input_example()
+    M.nui.menu_example()
     M.plenary.popup_example()
     M.nvim.openwin_example()
-  end
+    M.fzflua.ls_example()
+    vim.api.nvim_feedkeys('README.md' .. vim.api.nvim_replace_termcodes([[<C-\><C-n>]], true, false, true), 'n', false)
+    vim.schedule(function() vim.cmd([[noautocmd wincmd t]]) end)
+  end,
+  demonext = function()
+    bl_util.border_next_timer_stop()
+    M.demo_winid = M.nvim.demo('Borderline Demo', {}, M.demo_winid)
+    local border_style, border_name = bl_util.border_next()
+    bl_api.borderline(border_style)
+    M.nvim.demo(border_name, border_style, M.demo_winid)
+  end,
+  demoprevious = function()
+    bl_util.border_next_timer_stop()
+    M.demo_winid = M.nvim.demo('Borderline Demo', {}, M.demo_winid)
+    local border_style, border_name = bl_util.border_previous()
+    bl_api.borderline(border_style)
+    M.nvim.demo(border_name, border_style, M.demo_winid)
+  end,
 }
 
 return M
