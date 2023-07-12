@@ -5,7 +5,7 @@ local cache = require('borderline.cache')
 local M = {}
 
 ---@type BorderlineOptions
-local opts = {}
+local opts = {} ---@diagnostic disable: unused-local
 
 local orig = {
   nvim_open_win = vim.api.nvim_open_win,
@@ -20,13 +20,14 @@ end
 
 local borderline_nvim_win_set_config = function(winid, config)
   util.normalize_config()
+  local new_config = vim.tbl_deep_extend('force', vim.api.nvim_win_get_config(winid), config) or {}
   if cache.nvim_had_border[winid] == nil then
-    cache.nvim_had_border[winid] = util.has_border(config.border)
+    cache.nvim_had_border[winid] = util.has_border(new_config.border)
     if not cache.nvim_had_border[winid] then
-      config.border = util.border_styles().none
+      new_config.border = util.border_styles().none
     end
   end
-  return orig.nvim_win_set_config(winid, util.override_border(config, cache.nvim_had_border[winid]))
+  return orig.nvim_win_set_config(winid, util.override_border(new_config, cache.nvim_had_border[winid]))
 end
 
 local borderline_nvim_win_get_config = function(window)
