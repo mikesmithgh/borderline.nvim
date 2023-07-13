@@ -13,40 +13,47 @@ local orig = {
   nvim_win_get_config = vim.api.nvim_win_get_config,
 }
 
-local borderline_nvim_open_win = function(buffer, enter, config)
-  util.normalize_config()
-  return orig.nvim_open_win(buffer, enter, util.override_border(config))
+local function is_float(winopts)
+  return winopts and (winopts.relative or "") ~= ""
 end
 
-local borderline_nvim_win_set_config = function(winid, config)
+local borderline_nvim_open_win = function(buffer, enter, winopts)
+  if not is_float(winopts) then
+    return orig.nvim_open_win(buffer, enter, winopts)
+  end
   util.normalize_config()
-  local new_config = vim.tbl_deep_extend('force', vim.api.nvim_win_get_config(winid), config) or {}
+  return orig.nvim_open_win(buffer, enter, util.override_border(winopts))
+end
+
+local borderline_nvim_win_set_config = function(winid, winopts)
+  if not is_float(winopts) then
+    return orig.nvim_win_set_config(winid, winopts)
+  end
+  util.normalize_config()
   if cache.nvim_had_border[winid] == nil then
-    cache.nvim_had_border[winid] = util.has_border(new_config.border)
+    cache.nvim_had_border[winid] = util.has_border(winopts.border)
     if not cache.nvim_had_border[winid] then
-      new_config.border = util.border_styles().none
+      winopts.border = util.border_styles().none
     end
   end
-  return orig.nvim_win_set_config(winid, util.override_border(new_config, cache.nvim_had_border[winid]))
+  return orig.nvim_win_set_config(winid, util.override_border(winopts, cache.nvim_had_border[winid]))
 end
 
 local borderline_nvim_win_get_config = function(window)
-  util.normalize_config()
-  local config = orig.nvim_win_get_config(window)
-  local is_float = config ~= nil and (config.relative or "") ~= ""
-  if is_float then
-    return util.override_border(config)
+  local winopts = orig.nvim_win_get_config(window)
+  if not is_float(winopts) then
+    return winopts
   end
-  return config
+  util.normalize_config()
+  return util.override_border(winopts)
 end
 
 M.update_borders = function()
   local wins = vim.api.nvim_list_wins()
   for _, w in pairs(wins) do
-    local winconfig = borderline_nvim_win_get_config(w)
-    local is_float = winconfig and (winconfig.relative or "") ~= ""
-    if winconfig and is_float then
-      borderline_nvim_win_set_config(w, winconfig)
+    local winopts = borderline_nvim_win_get_config(w)
+    if is_float(winopts) then
+      borderline_nvim_win_set_config(w, winopts)
     end
   end
 end
