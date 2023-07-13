@@ -52,6 +52,20 @@ M.setup = function(borderline_opts)
     bl_util.border_next_timer_stop()
   end, {})
 
+  vim.api.nvim_create_user_command('BorderlineRegister', function(o)
+    bl_api.register(o.args)
+  end, {
+    nargs = '?',
+    complete = bl_api.register_keys,
+  })
+
+  vim.api.nvim_create_user_command('BorderlineDeregister', function(o)
+    bl_api.deregister(o.args)
+  end, {
+    nargs = '?',
+    complete = bl_api.deregister_keys,
+  })
+
   if opts.dev_mode then
     vim.api.nvim_create_user_command('BorderlineDev', function(o)
       local type = o.args

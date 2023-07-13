@@ -20,8 +20,10 @@ local orig = {
 local _self = nil
 
 local set_winopts = function(self, force)
-  -- TODO: possible bug in fzf-lua removing winopts in preview during redraw
   util.normalize_config()
+  if not M.is_registered() then
+    return
+  end
   if self and self.winopts then
     self.winopts = vim.tbl_deep_extend("force", self.winopts, util.override_border(self.winopts, force))
     self.winopts._border = self.winopts.border
@@ -49,6 +51,9 @@ local borderline_new = function(self, o)
 end
 
 M.update_borders = function()
+  if not M.is_registered() then
+    return
+  end
   if _self then
     _self:redraw()
     local winid = _self.border_winid
@@ -60,12 +65,20 @@ M.update_borders = function()
   end
 end
 
+local registered = nil
+
+M.is_registered = function()
+  return registered
+end
+
 M.register = function()
   fzflua_win.new = borderline_new
+  registered = true
 end
 
 M.deregister = function()
   fzflua_win.new = orig.new
+  registered = false
 end
 
 M.setup = function(borderline_opts)

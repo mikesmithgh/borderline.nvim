@@ -9,6 +9,7 @@ if not success then
 end
 
 ---@type BorderlineOptions
+---@diagnostic disable-next-line: unused-local
 local opts = {}
 
 local orig = {
@@ -108,6 +109,9 @@ end
 
 local borderline_create = function(what, vim_options)
   util.normalize_config()
+  if not M.is_registered() then
+    return orig.create(what, vim_options)
+  end
   if vim_options.border and not vim_options.borderchars then
     -- plenary defaults to double borderchars
     vim_options.borderchars = M.standard_to_plenary_border(util.border_styles().double)
@@ -132,6 +136,9 @@ end
 
 
 M.update_borders = function()
+  if not M.is_registered() then
+    return
+  end
   util.normalize_config()
   for winid, popup in pairs(popups) do
     local plenary_border = popup.border
@@ -161,21 +168,31 @@ M.update_borders = function()
       border_win_options.title = nil
     end
 
-    local success, _ = pcall(plenary_border.move, plenary_border, content_win_options, border_win_options)
+    success, _ = pcall(plenary_border.move, plenary_border, content_win_options, border_win_options)
     if not success then
+      vim.notify('borderline.nvim: failed to update plenary border for winid ' .. winid, vim.log.levels.ERROR, {})
     end
   end
 end
 
+local registered = nil
+
+M.is_registered = function()
+  return registered
+end
+
 M.register = function()
   plenary_popup.create = borderline_create
+  registered = true
 end
 
 M.deregister = function()
   plenary_popup.create = orig.create
+  registered = false
 end
 
 M.setup = function(borderline_opts)
+  ---@diagnostic disable-next-line: unused-local
   opts = borderline_opts
   M.register()
 end

@@ -64,7 +64,7 @@ M.has_border = function(border)
 
   -- unknown format
   vim.notify("borderline.nvim unknown border format", vim.log.levels.WARN, {})
-  return nil
+  return false
 end
 
 -- check if has border and if has top title
@@ -94,7 +94,7 @@ M.strip_border_hl = function(border)
       if type(b) == 'table' and type(b[1] == 'string') then
         stripped_border[idx] = b[1]
       elseif type(b) ~= 'string' then
-        vim.notify('borderline.nvim: cannot string border of type string ' .. b, vim.log.levels.ERROR, {})
+        vim.notify('borderline.nvim: cannot strip border of type string ' .. b, vim.log.levels.ERROR, {})
         stripped_border[idx] = nil
       end
     end
@@ -102,6 +102,44 @@ M.strip_border_hl = function(border)
     return stripped_border
   end
   return border
+end
+
+-- TODO: determine if I want to implement keeping empty border characters
+---@diagnostic disable-next-line: unused-local
+local replace_border_nonempty = function(border, target_border)
+  local function is_empty(str)
+    return not str or (str == '' or str == ' ')
+  end
+  local new_border = vim.tbl_deep_extend("force", {}, target_border)
+  if type(border) == 'table' then
+    if not next(border) then
+      return M.border_styles().none
+    end
+    for idx, b in pairs(border) do
+      if type(b) == 'table' and type(b[1] == 'string') then
+        if is_empty(b[1]) then
+          local new_b = new_border[idx]
+          if type(new_b) == 'table' and type(new_b[1] == 'string') then
+            new_b[1] = b[1]
+          else
+            new_border[idx] = b[1]
+          end
+        end
+      elseif type(b) == 'string' then
+        if is_empty(b) then
+          local new_b = new_border[idx]
+          if type(new_b) == 'table' and type(new_b[1] == 'string') then
+            new_b[1] = b
+          else
+            new_border[idx] = b
+          end
+        end
+      end
+    end
+  else
+    vim.notify('borderline.nvim: cannot replace border not of type table ' .. border, vim.log.levels.ERROR, {})
+  end
+  return new_border
 end
 
 M.normalize_config = function()
