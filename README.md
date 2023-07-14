@@ -1,4 +1,5 @@
 # 🔳 borderline.nvim
+![borderline-squirrel](https://github.com/mikesmithgh/borderline.nvim/assets/10135646/23bc2aec-ddfa-4d3a-be29-6ae4f370bd5c)
 
 <!-- panvimdoc-ignore-start -->
 
