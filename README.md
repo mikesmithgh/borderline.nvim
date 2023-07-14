@@ -1,7 +1,14 @@
+<!-- panvimdoc-ignore-start -->
+
+<img src="https://github.com/mikesmithgh/borderline.nvim/assets/10135646/23bc2aec-ddfa-4d3a-be29-6ae4f370bd5c" alt="borderlinesquirrel" style="width: 25%" align="right" />
+
+<!-- panvimdoc-ignore-end -->
+
 # 🔳 borderline.nvim
-![borderline-squirrel](https://github.com/mikesmithgh/borderline.nvim/assets/10135646/23bc2aec-ddfa-4d3a-be29-6ae4f370bd5c)
+Borders
 
 <!-- panvimdoc-ignore-start -->
+[![neovim: v0.9+](https://img.shields.io/static/v1?style=for-the-badge&label=neovim&message=v0.9%2b&logo=neovim&labelColor=282828&logoColor=8faa80&color=414b32)](https://neovim.io/)
 
 :shipit::warning::shipit: This project is still a work in progress and not considered stable :shipit::warning::shipit:
 
