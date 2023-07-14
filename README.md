@@ -1,6 +1,6 @@
 <!-- panvimdoc-ignore-start -->
 
-<img src="https://github.com/mikesmithgh/borderline.nvim/assets/10135646/c3a94fe9-9ef1-42d5-a652-bfcdcfb87bba" alt="borderlinesquirrel" style="width: 20%" align="right" />
+<img src="https://github.com/mikesmithgh/borderline.nvim/assets/10135646/04153c58-5113-45d7-987b-c9a0130ff21a" alt="borderlinesquirrel" style="width: 25%" align="right" />
 
 <!-- panvimdoc-ignore-end -->
 
