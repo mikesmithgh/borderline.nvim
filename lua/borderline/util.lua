@@ -10,10 +10,17 @@ local opts = {}
 ---@type BorderlineOptions?
 M.initial_opts = nil
 
+M.current_border_name = nil
+M.initial_border_name = nil
+
 M.setup = function(borderline_opts)
   opts = borderline_opts
   if not M.initial_opts then
     M.initial_opts = vim.tbl_deep_extend("force", {}, borderline_opts)
+    if type(opts.border) == 'string' then
+      M.current_border_name = opts.border
+      M.initial_border_name = opts.border
+    end
   end
 end
 
@@ -253,6 +260,31 @@ M.border_next_timer_start = function(time, callback)
   end, {
     ['repeat'] = -1,
   })
+end
+
+-- copied from lazy.nvim
+M.center_window_options = function(width, height, columns, lines)
+  local function size(max, value)
+    return value > 1 and math.min(value, max) or math.floor(max * value)
+  end
+  return {
+    width = size(columns, width),
+    height = size(lines, height),
+    row = math.floor((lines - height) / 2),
+    col = math.floor((columns - width) / 2),
+  }
+end
+
+M.border_tbl_to_map = function(border_tbl)
+  local border_map = {}
+  for i, b in pairs(border_tbl) do
+    local i_str = tostring(i)
+    border_map[i_str] = b
+    if type(b) == 'table' then
+      border_map[i_str] = M.border_tbl_to_map(b)
+    end
+  end
+  return border_map
 end
 
 return M

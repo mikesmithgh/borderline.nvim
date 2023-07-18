@@ -46,11 +46,13 @@ M.update_borders = function()
           .border
       success, _ = pcall(nui_border.set_style, popup.border, border_override, cache.nui_had_border[winid])
       if not success then
-        vim.notify('borderline.nvim: failed to set nui style for winid ' .. winid, vim.log.levels.ERROR, {})
+        vim.notify('borderline.nvim: failed to set nui style for winid ' .. winid, vim.log.levels.DEBUG, {})
+        popups[winid] = nil
       end
       success, _ = pcall(nui_popup.update_layout, popup)
       if not success then
-        vim.notify('borderline.nvim: failed to update nui layout for winid ' .. winid, vim.log.levels.ERROR, {})
+        vim.notify('borderline.nvim: failed to update nui layout for winid ' .. winid, vim.log.levels.DEBUG, {})
+        popups[winid] = nil
       end
     end
   end

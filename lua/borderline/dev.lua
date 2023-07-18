@@ -262,21 +262,9 @@ M.nvim.openwin_example = function()
 end
 
 
-local function border_tbl_to_map(border_tbl)
-  local border_map = {}
-  for i, b in pairs(border_tbl) do
-    local i_str = tostring(i)
-    border_map[i_str] = b
-    if type(b) == 'table' then
-      border_map[i_str] = border_tbl_to_map(b)
-    end
-  end
-  return border_map
-end
-
 M.nvim.demo = function(border_name, border_style, winid)
   border_style = border_style or {}
-  local winconfig = {
+  local winopts = {
     relative = "editor",
     border = "single",
     width = 34,
@@ -292,9 +280,9 @@ M.nvim.demo = function(border_name, border_style, winid)
   if not winid then
     buffer_id = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_set_option_value('filetype', 'lua', { buf = buffer_id })
-    winid = vim.api.nvim_open_win(buffer_id, true, winconfig)
+    winid = vim.api.nvim_open_win(buffer_id, true, winopts)
   else
-    vim.api.nvim_win_set_config(winid, winconfig)
+    vim.api.nvim_win_set_config(winid, winopts)
     buffer_id = vim.api.nvim_win_get_buf(winid)
   end
 
@@ -309,7 +297,7 @@ M.nvim.demo = function(border_name, border_style, winid)
     end
     table.insert(lines, ' -- ' .. borderchars[7] .. borderchars[6]:rep(size) .. borderchars[5])
   end
-  local border_map = border_tbl_to_map(border_style)
+  local border_map = bl_util.border_tbl_to_map(border_style)
   local first = true
   for s in vim.inspect(border_map):gmatch("[^\r\n]+") do
     s = s:gsub('^(.*%[)"(.*)"(%])', '%1%2%3')

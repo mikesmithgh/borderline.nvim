@@ -170,7 +170,8 @@ M.update_borders = function()
 
     success, _ = pcall(plenary_border.move, plenary_border, content_win_options, border_win_options)
     if not success then
-      vim.notify('borderline.nvim: failed to update plenary border for winid ' .. winid, vim.log.levels.ERROR, {})
+      vim.notify('borderline.nvim: failed to update plenary border for winid ' .. winid, vim.log.levels.DEBUG, {})
+      popups[winid] = nil
     end
   end
 end

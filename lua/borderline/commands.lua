@@ -14,13 +14,15 @@ M.setup = function(borderline_opts)
 
   vim.api.nvim_create_user_command('Borderline', function(o)
     bl_util.border_next_timer_stop()
-    local border = o.args
-    if border == nil or border == '' then
+    local border_name = o.args
+    local border = border_name
+    if border_name == nil or border_name == '' then
       -- no args, set to current configuration
       border = bl_util.initial_opts.border
+      border_name = bl_util.initial_border_name
     end
 
-    bl_api.borderline(border)
+    bl_api.borderline(border, border_name)
   end, {
     nargs = '?',
     complete = bl_util.border_style_names,
@@ -65,6 +67,10 @@ M.setup = function(borderline_opts)
     nargs = '?',
     complete = bl_api.deregister_keys,
   })
+
+  vim.api.nvim_create_user_command('BorderlineInfo', function()
+    bl_api.info()
+  end, {})
 
   if opts.dev_mode then
     vim.api.nvim_create_user_command('BorderlineDev', function(o)
