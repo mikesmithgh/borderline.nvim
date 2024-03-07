@@ -1,6 +1,6 @@
 ---@mod borderline.nui Borderline nui implementation
-local util = require('borderline.util')
 local cache = require('borderline.cache')
+local util = require('borderline.util')
 local M = {}
 
 local success, nui_popup = pcall(require, 'nui.popup')
@@ -15,7 +15,7 @@ local opts = {}
 
 local orig = {
   set_style = nui_border.set_style,
-  popup_mount = nui_popup.mount
+  popup_mount = nui_popup.mount,
 }
 
 local popups = {}
@@ -42,16 +42,25 @@ M.update_borders = function()
       if cache.nui_had_border[winid] == nil then
         cache.nui_had_border[winid] = util.has_border(popup.border._.style)
       end
-      local border_override = util.override_border({ border = popup.border._.style }, cache.nui_had_border[winid])
-          .border
-      success, _ = pcall(nui_border.set_style, popup.border, border_override, cache.nui_had_border[winid])
+      local border_override =
+        util.override_border({ border = popup.border._.style }, cache.nui_had_border[winid]).border
+      success, _ =
+        pcall(nui_border.set_style, popup.border, border_override, cache.nui_had_border[winid])
       if not success then
-        vim.notify('borderline.nvim: failed to set nui style for winid ' .. winid, vim.log.levels.DEBUG, {})
+        vim.notify(
+          'borderline.nvim: failed to set nui style for winid ' .. winid,
+          vim.log.levels.DEBUG,
+          {}
+        )
         popups[winid] = nil
       end
       success, _ = pcall(nui_popup.update_layout, popup)
       if not success then
-        vim.notify('borderline.nvim: failed to update nui layout for winid ' .. winid, vim.log.levels.DEBUG, {})
+        vim.notify(
+          'borderline.nvim: failed to update nui layout for winid ' .. winid,
+          vim.log.levels.DEBUG,
+          {}
+        )
         popups[winid] = nil
       end
     end
@@ -75,9 +84,8 @@ local borderline_mount = function(self, mount_fn)
   local border_internal = self.border._
   if border_internal.style then
     has_border = util.has_border(border_internal.style)
-    local border_override = util.override_border(
-      { border = border_internal.style }, has_border
-    ).border
+    local border_override =
+      util.override_border({ border = border_internal.style }, has_border).border
     nui_border.set_style(self.border, border_override, has_border)
     nui_popup.update_layout(self)
   end

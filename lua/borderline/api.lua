@@ -1,11 +1,11 @@
 ---@mod borderline.api Borderline API
 
 local M = {}
-local bl_util = require('borderline.util')
-local bl_standard = require('borderline.standard')
 local bl_fzflua = require('borderline.fzf-lua')
-local bl_plenary = require('borderline.plenary')
 local bl_nui = require('borderline.nui')
+local bl_plenary = require('borderline.plenary')
+local bl_standard = require('borderline.standard')
+local bl_util = require('borderline.util')
 
 ---@type BorderlineOptions
 local opts = {} ---@diagnostic disable-line: unused-local
@@ -96,7 +96,11 @@ M.deregister = function(name)
     if deregister_fn then
       deregister_fn()
     else
-      vim.notify('borderline.nvim: cannot deregister invalid type ' .. name, vim.log.levels.ERROR, {})
+      vim.notify(
+        'borderline.nvim: cannot deregister invalid type ' .. name,
+        vim.log.levels.ERROR,
+        {}
+      )
     end
   else
     for _, key in pairs(M.deregister_keys()) do
@@ -108,15 +112,15 @@ M.deregister = function(name)
   end
 end
 
-
 M.info = function()
-  local nvim_registered    = bl_standard.is_registered() or false
-  local nui_registered     = bl_nui.is_registered and bl_nui.is_registered() or false
+  local nvim_registered = bl_standard.is_registered() or false
+  local nui_registered = bl_nui.is_registered and bl_nui.is_registered() or false
   local plenary_registered = bl_plenary.is_registered and bl_plenary.is_registered() or false
-  local fzflua_registered  = bl_fzflua.is_registered and bl_fzflua.is_registered() or false
+  local fzflua_registered = bl_fzflua.is_registered and bl_fzflua.is_registered() or false
 
-  local outer_lines        = {
-    '```', '```',
+  local outer_lines = {
+    '```',
+    '```',
     '  ## Options',
     ('  - [%s] enabled'):format(opts.enabled and 'x' or ' '),
     ('  - [%s] dev_mode'):format(opts.dev_mode and 'x' or ' '),
@@ -135,25 +139,33 @@ M.info = function()
     '  ## Characters',
     '```',
   }
-  local border_style       = bl_util.normalize_border(opts.border)
-  local borderchars        = bl_util.strip_border_hl(border_style)
+  local border_style = bl_util.normalize_border(opts.border)
+  local borderchars = bl_util.strip_border_hl(border_style)
   if next(borderchars) then
     local width = 9
     local height = 3
-    table.insert(outer_lines,
-      '    ' .. borderchars[1] .. borderchars[2]:rep(width) .. borderchars[3])
+    table.insert(
+      outer_lines,
+      '    ' .. borderchars[1] .. borderchars[2]:rep(width) .. borderchars[3]
+    )
     for i = 1, height do
-      table.insert(outer_lines, '    ' .. borderchars[8] .. string.rep(' ', width) .. borderchars[4])
+      table.insert(
+        outer_lines,
+        '    ' .. borderchars[8] .. string.rep(' ', width) .. borderchars[4]
+      )
     end
-    table.insert(outer_lines, '    ' .. borderchars[7] .. borderchars[6]:rep(width) .. borderchars[5])
+    table.insert(
+      outer_lines,
+      '    ' .. borderchars[7] .. borderchars[6]:rep(width) .. borderchars[5]
+    )
   end
   table.insert(outer_lines, '```')
 
   local inner_lines = {}
-  local border_map  = bl_util.border_tbl_to_map(border_style)
-  local first       = true
-  local longest     = 0
-  for s in vim.inspect(border_map):gmatch("[^\r\n]+") do
+  local border_map = bl_util.border_tbl_to_map(border_style)
+  local first = true
+  local longest = 0
+  for s in vim.inspect(border_map):gmatch('[^\r\n]+') do
     if #s > longest then
       longest = #s
     end
@@ -171,10 +183,10 @@ M.info = function()
   end
   table.insert(inner_lines, '```')
 
-  local outer_buffer_id = inner_info_winid
-      and vim.api.nvim_win_get_buf(info_outer_winid) or vim.api.nvim_create_buf(false, true)
-  local inner_buffer_id = inner_info_winid
-      and vim.api.nvim_win_get_buf(inner_info_winid) or vim.api.nvim_create_buf(false, true)
+  local outer_buffer_id = info_outer_winid and vim.api.nvim_win_get_buf(info_outer_winid)
+    or vim.api.nvim_create_buf(false, true)
+  local inner_buffer_id = inner_info_winid and vim.api.nvim_win_get_buf(inner_info_winid)
+    or vim.api.nvim_create_buf(false, true)
 
   vim.api.nvim_set_option_value('modifiable', true, { buf = outer_buffer_id })
   vim.api.nvim_set_option_value('modifiable', true, { buf = inner_buffer_id })

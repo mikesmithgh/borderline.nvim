@@ -1,14 +1,14 @@
 ---@mod borderline.init Borderline initialization
 
-local bl_util = require('borderline.util')
-local bl_plenary = require('borderline.plenary')
-local bl_fzflua = require('borderline.fzf-lua')
-local bl_nui = require('borderline.nui')
-local bl_standard = require('borderline.standard')
-local bl_config = require('borderline.config')
 local bl_api = require('borderline.api')
 local bl_commands = require('borderline.commands')
+local bl_config = require('borderline.config')
 local bl_dev = require('borderline.dev')
+local bl_fzflua = require('borderline.fzf-lua')
+local bl_nui = require('borderline.nui')
+local bl_plenary = require('borderline.plenary')
+local bl_standard = require('borderline.standard')
+local bl_util = require('borderline.util')
 
 -- considerations
 -- nvim win commands
@@ -19,14 +19,12 @@ local bl_dev = require('borderline.dev')
 -- fzf-lua
 -- dressing.nvim
 
-
 local M = {
   ---@type BorderlineOptions?
   default_opts = nil,
   ---@type BorderlineOptions?
   opts = nil,
 }
-
 
 ---Initialize borderline.nvim
 ---@param override_opts? BorderlineOptions Optional borderline.nvim configuration overrides
@@ -56,6 +54,10 @@ M.setup = function(override_opts)
   bl_api.setup(M.opts)
   bl_commands.setup(M.opts)
   bl_dev.setup(M.opts)
+
+  local border = bl_util.initial_opts.border
+  local border_name = bl_util.initial_border_name
+  bl_api.borderline(border, border_name)
 end
 
 return M

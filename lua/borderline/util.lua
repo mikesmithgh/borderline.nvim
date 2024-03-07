@@ -16,7 +16,7 @@ M.initial_border_name = nil
 M.setup = function(borderline_opts)
   opts = borderline_opts
   if not M.initial_opts then
-    M.initial_opts = vim.tbl_deep_extend("force", {}, borderline_opts)
+    M.initial_opts = vim.tbl_deep_extend('force', {}, borderline_opts)
     if type(opts.border) == 'string' then
       M.current_border_name = opts.border
       M.initial_border_name = opts.border
@@ -70,7 +70,7 @@ M.has_border = function(border)
   end
 
   -- unknown format
-  vim.notify("borderline.nvim unknown border format", vim.log.levels.WARN, {})
+  vim.notify('borderline.nvim unknown border format', vim.log.levels.WARN, {})
   return false
 end
 
@@ -96,12 +96,16 @@ M.strip_border_hl = function(border)
       return {}
     end
     -- remove highlights
-    local stripped_border = vim.tbl_deep_extend("force", {}, border)
+    local stripped_border = vim.tbl_deep_extend('force', {}, border)
     for idx, b in pairs(border) do
       if type(b) == 'table' and type(b[1] == 'string') then
         stripped_border[idx] = b[1]
       elseif type(b) ~= 'string' then
-        vim.notify('borderline.nvim: cannot strip border of type string ' .. b, vim.log.levels.ERROR, {})
+        vim.notify(
+          'borderline.nvim: cannot strip border of type string ' .. b,
+          vim.log.levels.ERROR,
+          {}
+        )
         stripped_border[idx] = nil
       end
     end
@@ -117,7 +121,7 @@ local replace_border_nonempty = function(border, target_border)
   local function is_empty(str)
     return not str or (str == '' or str == ' ')
   end
-  local new_border = vim.tbl_deep_extend("force", {}, target_border)
+  local new_border = vim.tbl_deep_extend('force', {}, target_border)
   if type(border) == 'table' then
     if not next(border) then
       return M.border_styles().none
@@ -144,7 +148,11 @@ local replace_border_nonempty = function(border, target_border)
       end
     end
   else
-    vim.notify('borderline.nvim: cannot replace border not of type table ' .. border, vim.log.levels.ERROR, {})
+    vim.notify(
+      'borderline.nvim: cannot replace border not of type table ' .. border,
+      vim.log.levels.ERROR,
+      {}
+    )
   end
   return new_border
 end
@@ -157,7 +165,7 @@ M.override_border = function(config, force)
   if config == nil then
     return nil
   end
-  local c = vim.tbl_deep_extend("force", {}, config or {})
+  local c = vim.tbl_deep_extend('force', {}, config or {})
   local border = M.normalize_border(c.border)
   if opts.enabled then
     local should_override_boulder = force or M.has_border(border)
@@ -171,7 +179,7 @@ M.override_border = function(config, force)
 end
 
 M.border_styles = function()
-  return vim.tbl_extend("force", bl_borders, opts.border_styles)
+  return vim.tbl_extend('force', bl_borders, opts.border_styles)
 end
 
 M.border_style_names = function()
@@ -184,9 +192,7 @@ M.border_style_names = function()
   return sorted_names
 end
 
-
 local cur_border_idx = nil
-
 
 M.border_next = function()
   local names = M.border_style_names()
@@ -207,7 +213,14 @@ M.border_next = function()
     config_border = border_styles[opts.border]
   end
   if target_border_style then
-    if not no_cur_border_idx or (no_cur_border_idx and table.concat(vim.tbl_flatten(target_border_style)) ~= table.concat(vim.tbl_flatten(config_border))) then
+    if
+      not no_cur_border_idx
+      or (
+        no_cur_border_idx
+        and table.concat(vim.tbl_flatten(target_border_style))
+          ~= table.concat(vim.tbl_flatten(config_border))
+      )
+    then
       return target_border_style, target_border_name
     end
   end
@@ -233,7 +246,10 @@ M.border_previous = function()
     config_border = border_styles[opts.border]
   end
   if target_border_style then
-    if not no_cur_border_idx or (no_cur_border_idx and table.concat(target_border_style) ~= table.concat(config_border)) then
+    if
+      not no_cur_border_idx
+      or (no_cur_border_idx and table.concat(target_border_style) ~= table.concat(config_border))
+    then
       return target_border_style, target_border_name
     end
   end

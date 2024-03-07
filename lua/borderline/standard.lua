@@ -1,6 +1,6 @@
 ---@mod borderline.standard Borderline standard nvim implementation
-local util = require('borderline.util')
 local cache = require('borderline.cache')
+local util = require('borderline.util')
 
 local M = {}
 
@@ -14,7 +14,7 @@ local orig = {
 }
 
 local function is_float(winopts)
-  return winopts and (winopts.relative or "") ~= ""
+  return winopts and (winopts.relative or '') ~= ''
 end
 
 local borderline_nvim_open_win = function(buffer, enter, winopts)
@@ -39,7 +39,10 @@ local borderline_nvim_win_set_config = function(winid, winopts)
       winopts.border = util.border_styles().none
     end
   end
-  return orig.nvim_win_set_config(winid, util.override_border(winopts, cache.nvim_had_border[winid]))
+  return orig.nvim_win_set_config(
+    winid,
+    util.override_border(winopts, cache.nvim_had_border[winid])
+  )
 end
 
 local borderline_nvim_win_get_config = function(window)
@@ -88,6 +91,5 @@ M.setup = function(borderline_opts)
   opts = borderline_opts
   M.register()
 end
-
 
 return M

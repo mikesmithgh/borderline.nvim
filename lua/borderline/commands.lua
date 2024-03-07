@@ -1,8 +1,8 @@
 ---@mod borderline.commands Borderline Commands
 
-local bl_util = require('borderline.util')
 local bl_api = require('borderline.api')
 local bl_dev = require('borderline.dev')
+local bl_util = require('borderline.util')
 local M = {}
 
 ---@type BorderlineOptions

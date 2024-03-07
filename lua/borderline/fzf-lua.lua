@@ -1,9 +1,8 @@
 ---@mod borderline.fzf-lua Borderline fzf-lua implementation
-local util = require('borderline.util')
 local cache = require('borderline.cache')
+local util = require('borderline.util')
 
 local M = {}
-
 
 local success, fzflua_win = pcall(require, 'fzf-lua.win')
 if not success then
@@ -14,7 +13,7 @@ end
 M.opts = {}
 
 local orig = {
-  new = fzflua_win.new
+  new = fzflua_win.new,
 }
 
 local _self = nil
@@ -25,16 +24,21 @@ local set_winopts = function(self, force)
     return
   end
   if self and self.winopts then
-    self.winopts = vim.tbl_deep_extend("force", self.winopts, util.override_border(self.winopts, force))
+    self.winopts =
+      vim.tbl_deep_extend('force', self.winopts, util.override_border(self.winopts, force))
     self.winopts._border = self.winopts.border
     self.winopts.nohl_borderchars = util.strip_border_hl(self.winopts.border)
     self._o.winopts = self.winopts
     if self.winopts_fn then
-      self.winopts_fn = function() util.override_border(self.winopts_fn(), force) end
+      self.winopts_fn = function()
+        util.override_border(self.winopts_fn(), force)
+      end
       self._o.winopts_fn = self.winopts_fn
     end
     if self.winopts_raw then
-      self.winopts_raw = function() util.override_border(self.winopts_raw(), force) end
+      self.winopts_raw = function()
+        util.override_border(self.winopts_raw(), force)
+      end
       self._o.winopts_raw = self.winopts_raw
     end
   end

@@ -1,5 +1,7 @@
 <!-- panvimdoc-ignore-start -->
 
+TODO: investigate bug that requires autocmd of FileType when opening telescope for the first time
+
 <img src="https://github.com/mikesmithgh/borderline.nvim/assets/10135646/04153c58-5113-45d7-987b-c9a0130ff21a" alt="borderlinesquirrel" style="width: 25%" align="right" />
 
 <!-- panvimdoc-ignore-end -->
@@ -48,13 +50,18 @@ consistent border to all floating windows.
 ```
 
 ### Using Neovim's built-in package support [pack](https://neovim.io/doc/user/usr_05.html#05.4)
+The following commands can be used to install borderline.nvim via pack. This is allows you to test
+the plugin independently of your main Neovim configuration by changing the `BORDERLINE_NVIM` variable.
 ```bash
-mkdir -p "$HOME/.local/share/nvim/site/pack/mikesmithgh/start/"
-cd $HOME/.local/share/nvim/site/pack/mikesmithgh/start
+BORDERLINE_NVIM='nvim' # change this if you would like to test independently of your main Neovim configuration, e.g., borderline-nvim
+config_dir="$(NVIM_APPNAME="$BORDERLINE_NVIM" nvim --headless +"=vim.fn.stdpath('config')" +quit 2>&1)"
+share_dir="$(NVIM_APPNAME="$BORDERLINE_NVIM" nvim --headless +"=vim.fn.stdpath('data')" +quit 2>&1)"
+mkdir -p "$share_dir/site/pack/mikesmithgh/start/"
+cd "$share_dir/site/pack/mikesmithgh/start"
 git clone git@github.com:mikesmithgh/borderline.nvim.git
-nvim -u NONE -c "helptags borderline.nvim/doc" -c q
-mkdir -p "$HOME/.config/nvim"
-echo "require('borderline').setup()" >> "$HOME/.config/nvim/init.lua" 
+NVIM_APPNAME="$BORDERLINE_NVIM" nvim -u NONE +"helptags borderline.nvim/doc" +quit
+echo "require('borderline').setup()" >> "$config_dir/init.lua" 
+NVIM_APPNAME="$BORDERLINE_NVIM" nvim
 ```
 
 ## 🫡 Commands and Lua API
