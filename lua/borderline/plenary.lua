@@ -3,7 +3,7 @@ local cache = require('borderline.cache')
 local util = require('borderline.util')
 local M = {}
 
-local success, plenary_popup = pcall(require, 'plenary.popup')
+local success, plenary_window_border = pcall(require, 'plenary.window.border')
 if not success then
   return M
 end
@@ -13,10 +13,11 @@ end
 local opts = {}
 
 local orig = {
-  create = plenary_popup.create,
+  new = plenary_window_border.new,
+  move = plenary_window_border.move,
 }
 
-local popups = {}
+local borders = {}
 
 M.standard_to_plenary_border = function(border_orig)
   local b = vim.tbl_deep_extend('force', {}, border_orig or util.border_styles().none)
@@ -121,32 +122,51 @@ local plenary_border_override = function(borderchars, force)
   return target_border
 end
 
-local borderline_create = function(what, vim_options)
-  util.normalize_config()
-  if not M.is_registered() then
-    return orig.create(what, vim_options)
-  end
-  if vim_options.border and not vim_options.borderchars then
-    -- plenary defaults to double borderchars
-    vim_options.borderchars = M.standard_to_plenary_border(util.border_styles().double)
-  end
-  if vim_options.borderchars then
-    local border_override = plenary_border_override(vim_options.borderchars)
-    vim_options.borderchars = border_override
-  end
+local get_border_opts = function(border_opts)
+  border_opts = border_opts or {}
+  -- if no border is defined, plenary defaults to double borderchars
+  local default_borderchars =
+    M.standard_to_plenary_border_map(util.override_border(util.border_styles().double))
+  local borderchars =
+    plenary_border_override(vim.tbl_deep_extend('force', border_opts, default_borderchars))
+  local border_override =
+    M.standard_to_plenary_border_map(M.plenary_to_standard_border(borderchars))
+  return vim.tbl_deep_extend('force', border_opts, border_override)
+end
 
-  local orig_title = vim_options.title
-  if not util.has_title(vim_options.borderchars) then
-    vim_options.title = nil
-  end
-  local winid, popup = orig.create(what, vim_options)
+local function set_border_cache(winid, border, border_opts)
   if winid then
-    popups[winid] = popup
-    cache.plenary_had_border[winid] =
-      util.has_border(M.plenary_to_standard_border(vim_options.borderchars))
-    cache.plenary_prev_title[winid] = orig_title
+    borders[winid] = border
+    cache.plenary_had_border[winid] = util.has_border(M.plenary_to_standard_border(border_opts))
+    cache.plenary_prev_title[winid] = border_opts.title
   end
-  return winid, popup
+end
+
+local borderline_new = function(
+  self,
+  content_bufnr,
+  content_win_id,
+  content_win_options,
+  border_win_options
+)
+  if not M.is_registered() then
+    return orig.new(self, content_bufnr, content_win_id, content_win_options, border_win_options)
+  end
+  util.normalize_config()
+  local border_opts = get_border_opts(border_win_options)
+  local border = orig.new(self, content_bufnr, content_win_id, content_win_options, border_opts)
+  set_border_cache(content_win_id, border, border_opts)
+  return border
+end
+
+local borderline_move = function(self, content_win_options, border_win_options)
+  if not M.is_registered() then
+    return orig.move(self, content_win_options, border_win_options)
+  end
+  util.normalize_config()
+  local border_opts = get_border_opts(border_win_options)
+  orig.move(self, content_win_options, border_opts)
+  set_border_cache(self.win_id, self, border_opts)
 end
 
 M.update_borders = function()
@@ -154,8 +174,7 @@ M.update_borders = function()
     return
   end
   util.normalize_config()
-  for winid, popup in pairs(popups) do
-    local plenary_border = popup.border
+  for winid, plenary_border in pairs(borders) do
     local standard_border = M.plenary_to_standard_border(plenary_border._border_win_options)
     if cache.plenary_had_border[winid] == nil then
       cache.plenary_had_border[winid] = util.has_border(standard_border)
@@ -192,7 +211,7 @@ M.update_borders = function()
         vim.log.levels.DEBUG,
         {}
       )
-      popups[winid] = nil
+      borders[winid] = nil
     end
   end
 end
@@ -204,12 +223,14 @@ M.is_registered = function()
 end
 
 M.register = function()
-  plenary_popup.create = borderline_create
+  plenary_window_border.new = borderline_new
+  plenary_window_border.move = borderline_move
   registered = true
 end
 
 M.deregister = function()
-  plenary_popup.create = orig.create
+  plenary_window_border.new = orig.new
+  plenary_window_border.move = orig.move
   registered = false
 end
 

@@ -1,7 +1,5 @@
 <!-- panvimdoc-ignore-start -->
 
-TODO: investigate bug that requires autocmd of FileType when opening telescope for the first time
-
 <img src="https://github.com/mikesmithgh/borderline.nvim/assets/10135646/04153c58-5113-45d7-987b-c9a0130ff21a" alt="borderlinesquirrel" style="width: 25%" align="right" />
 
 <!-- panvimdoc-ignore-end -->
@@ -10,10 +8,11 @@ TODO: investigate bug that requires autocmd of FileType when opening telescope f
 Neovim plugin to globally define border style for all floating windows (see `:h api-floatwin`).
 
 <!-- panvimdoc-ignore-start -->
-[![neovim: v0.9+](https://img.shields.io/static/v1?style=for-the-badge&label=neovim&message=v0.9%2b&logo=neovim&labelColor=282828&logoColor=8faa80&color=414b32)](https://neovim.io/)
+[![neovim: v0.9+](https://img.shields.io/static/v1?style=flat-square&label=neovim&message=v0.9%2b&logo=neovim&labelColor=282828&logoColor=8faa80&color=414b32)](https://neovim.io/)
+[![semantic-release: angular](https://img.shields.io/static/v1?style=flat-square&label=semantic-release&message=angular&logo=semantic-release&labelColor=282828&logoColor=d8869b&color=8f3f71)](https://github.com/semantic-release/semantic-release)
 
-:shipit::warning::shipit: This project is still a work in progress and not considered stable :shipit::warning::shipit:
-
+> [!WARNING]  
+> This project is still a work in progress and not considered stable
 
 https://github.com/mikesmithgh/borderline.nvim/assets/10135646/da91139e-4031-471b-97b2-02c6e43b674e
 
