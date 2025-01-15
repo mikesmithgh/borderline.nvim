@@ -2,6 +2,9 @@
 local bl_borders = require('borderline.borders')
 local bl_config = require('borderline.config')
 
+---@diagnostic disable-next-line: deprecated
+local islist = vim.islist or vim.tbl_islist
+
 local M = {}
 
 ---@type BorderlineOptions
@@ -44,7 +47,7 @@ M.normalize_border = function(border)
     end
     border = border_tbl
   end
-  if type(border) == 'table' and vim.tbl_islist(border) and not next(border) then
+  if type(border) == 'table' and islist(border) and not next(border) then
     border = M.border_styles().none
   end
   return border
