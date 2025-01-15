@@ -1,11 +1,10 @@
 <!-- panvimdoc-ignore-start -->
 
-<h1>
-  🔳 borderline.nvim
-  <img src="https://github.com/mikesmithgh/borderline.nvim/assets/10135646/04153c58-5113-45d7-987b-c9a0130ff21a" alt="borderlinesquirrel" align="right" width="25%" />
-</h1>
+<img src="https://github.com/mikesmithgh/borderline.nvim/assets/10135646/04153c58-5113-45d7-987b-c9a0130ff21a" alt="borderlinesquirrel" align="right" width="90px" />
 
 <!-- panvimdoc-ignore-end -->
+
+# 🔳 borderline.nvim
 
 Neovim plugin to globally define border style for all floating windows (see `:h api-floatwin`).
 
