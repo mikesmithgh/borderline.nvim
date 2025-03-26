@@ -15,6 +15,12 @@ Neovim plugin to globally define border style for all floating windows (see `:h 
 > [!WARNING]  
 > This project is still a work in progress and not considered stable
 
+> [!NOTE] 
+> If you are using Neovim 0.11 or greater, then you may not need borderline.nvim. Neovim 0.11 introduced the option
+> [winborder](https://neovim.io/doc/user/options.html#'winborder') which defines the default border style of floating windows.
+> However, depending on your plugins, winborder may not draw the borders as desired since some plugins manage floating windows
+> and borders differently than Neovim's defaul floating window. Also, winborder does not support custom borders at the moment.
+
 https://github.com/mikesmithgh/borderline.nvim/assets/10135646/da91139e-4031-471b-97b2-02c6e43b674e
 
 
