@@ -72,6 +72,12 @@ M.has_border = function(border)
     return #nonempty_chars > 0
   end
 
+  if type(border) == 'function' then
+    -- fzf-lua now accepts a border function in its border-fused profile
+    -- just assume true for now and revisit in the future if this causes any issues
+    return true
+  end
+
   -- unknown format
   vim.notify('borderline.nvim unknown border format', vim.log.levels.WARN, {})
   return false
