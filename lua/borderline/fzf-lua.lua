@@ -4,6 +4,11 @@ local util = require('borderline.util')
 
 local M = {}
 
+if not pcall(require, 'fzf-lua.init') then
+  -- this check guards against a timing issue where fzf-lua.win sometimes doesn't properly load fzf-lua.init
+  vim.notify('borderline.nvim: cannot load fzf-lua.init', vim.log.levels.ERROR, {})
+  return M
+end
 local success, fzflua_win = pcall(require, 'fzf-lua.win')
 if not success then
   return M
